@@ -42,6 +42,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'token',     // uses token-based auth
+            'provider' => 'users',   // same users table
+            'hash' => false,
+        ],
     ],
 
     /*

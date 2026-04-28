@@ -1,7 +1,13 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserRoleController;
+
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,11 +31,11 @@ Route::middleware(['auth', 'role:viewer|editor|admin'])->group(function () {
 });
 
 // Editor route - editor and admin can access
-Route::middleware(['auth', 'role:editor|admin'])->group(function () {
-    Route::get('/posts/create', function () {
-        return 'Create Post Page - You can CREATE and EDIT content';
-    });
-});
+// Route::middleware(['auth', 'role:editor|admin'])->group(function () {
+//     Route::get('/posts/create', function () {
+//         return 'Create Post Page - You can CREATE and EDIT content';
+//     });
+// });
 
 // Admin route - only admin can access
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -37,5 +43,29 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         return 'Admin Panel - You can MANAGE everything';
     });
 });
+
+// Post routes - auth required for all
+//we removed role: from middleware here — the permission check now happens inside the controller using $user->can()
+Route::middleware(['auth'])->group(function () {
+    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::get('/posts/{id}/edit', [PostController::class, 'edit'])->name('posts.edit');
+    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::get('/manage-users', [PostController::class, 'manageUsers'])->name('posts.manageUsers');
+    // Test delete permission
+    Route::get('/test-delete/{id}', [PostController::class, 'destroy']);
+});
+
+
+
+
+// Role management routes - admin only
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('roles', RoleController::class);
+    Route::get('/users', [UserRoleController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserRoleController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserRoleController::class, 'update'])->name('users.update');
+});
+
 
 require __DIR__ . '/auth.php';
