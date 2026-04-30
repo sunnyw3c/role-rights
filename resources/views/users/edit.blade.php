@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Edit Roles: {{ $user->name }}
+                Edit Roles & Permissions: {{ $user->name }}
             </h2>
             <a href="{{ route('users.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
                 Back to Users
@@ -22,6 +22,7 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- Roles Section --}}
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Assign Roles</label>
                         <div class="grid grid-cols-2 gap-2">
@@ -35,8 +36,25 @@
                         </div>
                     </div>
 
+                    {{-- Direct Permissions Section --}}
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Assign Direct Permissions
+                            <span class="text-xs text-gray-400 font-normal ml-1">(assigned directly to this user only)</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach($permissions as $permission)
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                                        {{ in_array($permission->name, $userDirectPermissions) ? 'checked' : '' }}>
+                                    <span class="text-sm text-gray-700">{{ $permission->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-                        Update Roles
+                        Update Roles & Permissions
                     </button>
                 </form>
 

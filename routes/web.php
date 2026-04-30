@@ -5,8 +5,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserRoleController;
-
-
+use App\Http\Controllers\PermissionController;
 
 
 Route::get('/', function () {
@@ -24,7 +23,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Viewer route - viewer, editor, admin can access
-Route::middleware(['auth', 'role:viewer|editor|admin'])->group(function () {
+Route::middleware(['auth', 'role:viewer|editor|admin|super admin'])->group(function () {
     Route::get('/viewer', function () {
         return 'Viewer Page - You can VIEW content';
     });
@@ -38,7 +37,7 @@ Route::middleware(['auth', 'role:viewer|editor|admin'])->group(function () {
 // });
 
 // Admin route - only admin can access
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin|super admin'])->group(function () {
     Route::get('/admin', function () {
         return 'Admin Panel - You can MANAGE everything';
     });
@@ -60,11 +59,12 @@ Route::middleware(['auth'])->group(function () {
 
 
 // Role management routes - admin only
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin|super admin'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::get('/users', [UserRoleController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserRoleController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserRoleController::class, 'update'])->name('users.update');
+    Route::resource('permissions', PermissionController::class)->only(['index', 'create', 'store', 'destroy']);
 });
 
 

@@ -18,12 +18,20 @@ class RolePermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        //Create permissions - Permissions are the individual actions a user can perform. We define them first, then assign them to roles.
-        Permission::create(['name' => 'view posts']);
-        Permission::create(['name' => 'create posts']);
-        Permission::create(['name' => 'edit posts']);
-        Permission::create(['name' => 'delete posts']);
-        Permission::create(['name' => 'manage users']);
+        // Auto-generate CRUD permissions per model.
+        // WHY: instead of writing Permission::create() 20+ times, we loop.
+        // To add a new model, just add its name to the $models array.
+        $models = ['posts', 'users'];
+        $actions = ['view', 'create', 'edit', 'delete'];
+
+        foreach ($models as $model) {
+            foreach ($actions as $action) {
+                Permission::firstOrCreate(['name' => "$action $model"]);
+            }
+        }
+
+        // Extra permission that doesn't fit the CRUD pattern
+        Permission::firstOrCreate(['name' => 'manage users']);
 
         // Create roles and assign permissions  - A role is a group of permissions. viewer can only view, editor can view/create/edit, admin gets everything.
         $viewer = Role::create(['name' => 'viewer']);
@@ -35,8 +43,13 @@ class RolePermissionSeeder extends Seeder
         $admin = Role::create(['name' => 'admin']);
         $admin->givePermissionTo(Permission::all());
 
+        // Super Admin role — has NO permissions assigned.
+        // WHY: Gate::before() bypasses ALL permission checks for this role,
+        // so assigning permissions is unnecessary. It can do everything automatically.
+        Role::create(['name' => 'super admin']);
 
-        //Create roles and assign role 
+
+        //Create roles and assign role
 
         $adminUser = User::create([
             'name'     => 'Admin User',
@@ -58,5 +71,12 @@ class RolePermissionSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
         $viewerUser->assignRole('viewer');
+
+        $superAdmin = User::create([
+            'name'     => 'Super Admin User',
+            'email'    => 'superadmin@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        $superAdmin->assignRole('super admin');
     }
 }
