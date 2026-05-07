@@ -35,7 +35,7 @@
                                 <td class="px-6 py-4 font-semibold">{{ $permission->name }}</td>
                                 <td class="px-6 py-4">
                                     <form action="{{ route('permissions.destroy', $permission) }}" method="POST" class="inline">
-                                        @csrf
+                                        @csrf0
                                         @method('DELETE')
                                         <button onclick="return confirm('Delete this permission?')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
                                             Delete
